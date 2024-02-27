@@ -1,0 +1,10 @@
+FROM alpine:latest
+RUN apk update
+WORKDIR /usr/share/nginx
+RUN adduser -g 'Nginx www user' -h /usr/share/nginx/html/ handy -D
+COPY index.html /usr/share/nginx/html/
+RUN apk add --no-cache nginx php81 php81-fpm php81-mysqli php81-pdo php81-pdo_mysql
+RUN mkdir -p /run/nginx
+COPY default.conf /etc/nginx/http.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
