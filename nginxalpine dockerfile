@@ -1,5 +1,7 @@
 FROM alpine:latest
-RUN apk update
+RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/main' >> /etc/apk/repositories
+RUN apk update && apk add 'libxml2=2.12.5-r0'
+RUN apk update && apk upgrade libxml2
 WORKDIR /usr/share/nginx
 RUN adduser -g 'Nginx www user' -h /usr/share/nginx/html/ handy -D
 COPY index.html /usr/share/nginx/html/
