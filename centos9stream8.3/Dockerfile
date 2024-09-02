@@ -16,7 +16,8 @@ RUN dnf -y install --allowerasing  sudo \
         unzip \
         git 
  
-#Install PHP
+#Install PHP and Nginx
+RUN dnf -y install https://nginx.org/packages/centos/9/x86_64/RPMS/nginx-1.26.0-1.el9.ngx.x86_64.rpm
 RUN dnf -y install php \
 		   php-fpm \
 		   php-curl \
@@ -36,8 +37,7 @@ RUN dnf -y install php \
 		   php-tokenizer \
 		   php-pdo \
 		   php-intl \
-		   php-pgsql \
-		   nginx
+		   php-pgsql
 
 #PHP and Nginx setup
 RUN mkdir -p /etc/nginx/ssl/
