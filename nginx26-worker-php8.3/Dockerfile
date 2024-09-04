@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 # Install tool pendukung
 RUN apt-get update
@@ -15,29 +15,31 @@ RUN apt-get install -y sudo \
         openssh-server
 RUN apt-get update && apt-get install -y software-properties-common
 RUN add-apt-repository ppa:ondrej/php
+RUN add-apt-repository ppa:ondrej/nginx
 # Install NGINX
-RUN apt-get install -y nginx
-# Install PHP 7.4-FPM
-RUN apt-get install -y php8.1-fpm
-RUN apt-get install -y php8.1-curl \
-        php8.1-gmp \
-        php8.1-mysql \
-        php8.1-common \
-        php8.1-cli \
-        php8.1-gd \
-        php8.1-opcache \
-        php8.1-imagick \
-        php8.1-mbstring \
-        php8.1-xml \
-        php8.1-zip \
-        php8.1-redis \
-        php8.1-gettext \
-        php8.1-ctype \
-        php8.1-tokenizer \
-        php8.1-MySqli \
-        php8.1-MySqlND \
-        php8.1-pdo \
-        php8.1-pgsql 
+RUN apt-get -y update
+RUN apt-get install -y nginx-full
+# Install PHP 8.1-FPM
+RUN apt-get install -y php8.3-fpm
+RUN apt-get install -y php8.3-curl \
+        php8.3-gmp \
+        php8.3-mysql \
+        php8.3-common \
+        php8.3-cli \
+        php8.3-gd \
+        php8.3-opcache \
+        php8.3-imagick \
+        php8.3-mbstring \
+        php8.3-xml \
+        php8.3-zip \
+        php8.3-redis \
+        php8.3-gettext \
+        php8.3-ctype \
+        php8.3-tokenizer \
+        php8.3-MySqli \
+        php8.3-MySqlND \
+        php8.3-pdo \
+        php8.3-pgsql 
 ## Konfigurasi NGINX + PHP
 RUN mkdir /etc/nginx/ssl/
 RUN mkdir /var/www/html/prod/
@@ -47,8 +49,8 @@ COPY config/nginx/php.default.conf /etc/nginx/php.conf.d/
 COPY config/nginx/limiter.conf /etc/nginx/conf.d/
 COPY config/nginx/default /etc/nginx/sites-enabled/
 # Php config
-RUN rm /etc/php/8.1/fpm/php.ini
-COPY config/php.ini /etc/php/8.1/fpm
+RUN rm /etc/php/8.3/fpm/php.ini
+COPY config/php.ini /etc/php/8.3/fpm
 # Install Supervisord
 RUN apt-get install -y supervisor
 COPY config/supervisord.conf /etc/supervisor
@@ -83,5 +85,5 @@ ARG MAX_INPUT_TIME=120
 ENV MAX_INPUT_TIME=$MAX_INPUT_TIME
 # Pointing
 WORKDIR /var/www/html
-#ENTRYPOINT /config/runner.sh && /bin/bash
-CMD supervisord -c /etc/supervisor/supervisord.conf && service php8.1-fpm start && nginx -g 'daemon off;'
+ENTRYPOINT ["/config/runner.sh"]
+CMD nginx -g 'daemon off;'

@@ -1,6 +1,6 @@
 server {
         server_name _;
-        listen 80;
+	listen 80;
 #        listen  443 ssl;
 #        ssl_certificate /etc/nginx/ssl/Certificate.crt;
 #        ssl_certificate_key /etc/nginx/ssl/Private.key;
@@ -12,7 +12,7 @@ server {
         gzip_vary on;
         gunzip on;
 
-        root /var/www/html/;
+        root /var/www/html/prod/;
         index index.php index.html index.htm;
         location / {
                 autoindex on;
@@ -25,9 +25,36 @@ server {
                 expires 7d;
         }
 
+        location ^~ /beanstalk
+        {
+                alias /var/www/html/beanstalk/public;
+                try_files $uri $uri/ @beanstalk;
+
+                location ~ \.php($|/.+) {
+                        include php.conf.d/php.default.conf;
+                        fastcgi_param SCRIPT_FILENAME $request_filename;
+                }
+
+ }
+        location @beanstalk {
+                rewrite /beanstalk/(.*)$ /beanstalk/index.php?/$1 last;
+        }
+        location ^~ /developer
+        {
+                autoindex on;
+                index index.php index.html /developer/_h5ai/public/index.php;
+
+                location ~ \.php($|/.+) {
+                        include php.conf.d/php.default.conf;
+                }
+}
+
+        location ~ \.php($|/.+) {
+                include php.conf.d/php.default.conf;
+        }
         location ~ /\.envconfig {
                 deny all;
-                return 404;
+		return 404;
         }
         location ~ /\.env {
                 deny all;
@@ -41,9 +68,19 @@ server {
                 deny all;
                 return 404;
         }
+         location ^~ /dev
+        {
+                alias /var/www/html/dev;
+                try_files $uri $uri/ /index.php?$query_string;
+
+                location ~ \.php($|/.+) {
+                        include php.conf.d/php.default.conf;
+                        fastcgi_param SCRIPT_FILENAME $request_filename;
+                }
+        }
         location ~* {
                 add_header X-Robots-Tag "noindex, follow" always;
                 try_files $uri $uri/ /index.php?$query_string;
-                }
+                }        
 
 }
