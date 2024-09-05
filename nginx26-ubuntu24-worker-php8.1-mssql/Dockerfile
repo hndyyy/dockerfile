@@ -20,26 +20,26 @@ RUN add-apt-repository ppa:ondrej/nginx
 RUN apt-get -y update
 RUN apt-get install -y nginx-full
 # Install PHP 8.1-FPM
-RUN apt-get install -y php8.3-fpm
-RUN apt-get install -y php8.3-curl \
-        php8.3-gmp \
-        php8.3-mysql \
-        php8.3-common \
-        php8.3-cli \
-        php8.3-gd \
-        php8.3-opcache \
-        php8.3-imagick \
-        php8.3-mbstring \
-        php8.3-xml \
-        php8.3-zip \
-        php8.3-redis \
-        php8.3-gettext \
-        php8.3-ctype \
-        php8.3-tokenizer \
-        php8.3-MySqli \
-        php8.3-MySqlND \
-        php8.3-pdo \
-        php8.3-pgsql 
+RUN apt-get install -y php8.1-fpm
+RUN apt-get install -y php8.1-curl \
+        php8.1-gmp \
+        php8.1-mysql \
+        php8.1-common \
+        php8.1-cli \
+        php8.1-gd \
+        php8.1-opcache \
+        php8.1-imagick \
+        php8.1-mbstring \
+        php8.1-xml \
+        php8.1-zip \
+        php8.1-redis \
+        php8.1-gettext \
+        php8.1-ctype \
+        php8.1-tokenizer \
+        php8.1-MySqli \
+        php8.1-MySqlND \
+        php8.1-pdo \
+        php8.1-pgsql 
 ## Konfigurasi NGINX + PHP
 RUN mkdir /etc/nginx/ssl/
 RUN mkdir /var/www/html/prod/
@@ -49,8 +49,8 @@ COPY config/nginx/php.default.conf /etc/nginx/php.conf.d/
 COPY config/nginx/limiter.conf /etc/nginx/conf.d/
 COPY config/nginx/default /etc/nginx/sites-enabled/
 # Php config
-RUN rm /etc/php/8.3/fpm/php.ini
-COPY config/php.ini /etc/php/8.3/fpm
+RUN rm /etc/php/8.1/fpm/php.ini
+COPY config/php.ini /etc/php/8.1/fpm
 # Install Supervisord
 RUN apt-get install -y supervisor
 COPY config/supervisord.conf /etc/supervisor
@@ -59,6 +59,19 @@ RUN curl –sS https://getcomposer.org/installer | php && mv composer.phar /usr/
 # Config by Script
 ADD config  /config
 RUN chmod -R +x /config
+#Install mssql Driver
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add
+RUN curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+RUN apt-get update
+RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17
+RUN ACCEPT_EULA=Y apt-get install -y mssql-tools
+RUN apt-get install -y unixodbc-dev
+RUN apt-get -y install gcc g++ make autoconf libc-dev pkg-config
+RUN apt install -y php8.1-dev php-pear
+RUn pecl install sqlsrv pdo_sqlsrv
+RUN printf "; priority=20\nextension=sqlsrv.so\n" > /etc/php/8.1/mods-available/sqlsrv.ini
+RUN printf "; priority=30\nextension=pdo_sqlsrv.so\n" > /etc/php/8.1/mods-available/pdo_sqlsrv.ini
+RUN phpenmod -v 8.1 sqlsrv pdo_sqlsrv
 # Server Variable
 ### Timezone 
 ARG TIMEZONE=Asia/Jakarta

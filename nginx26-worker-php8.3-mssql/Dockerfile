@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 # Install tool pendukung
 RUN apt-get update
@@ -59,6 +59,19 @@ RUN curl –sS https://getcomposer.org/installer | php && mv composer.phar /usr/
 # Config by Script
 ADD config  /config
 RUN chmod -R +x /config
+# Install mssql Driver
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add
+RUN curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+RUN apt-get update
+RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17
+RUN ACCEPT_EULA=Y apt-get install -y mssql-tools
+RUN apt-get install -y unixodbc-dev
+RUN apt-get -y install gcc g++ make autoconf libc-dev pkg-config
+RUN apt install -y php8.3-dev php-pear
+RUn pecl install sqlsrv pdo_sqlsrv
+RUN printf "; priority=20\nextension=sqlsrv.so\n" > /etc/php/8.3/mods-available/sqlsrv.ini
+RUN printf "; priority=30\nextension=pdo_sqlsrv.so\n" > /etc/php/8.3/mods-available/pdo_sqlsrv.ini
+RUN phpenmod -v 8.3 sqlsrv pdo_sqlsrv
 # Server Variable
 ### Timezone 
 ARG TIMEZONE=Asia/Jakarta
